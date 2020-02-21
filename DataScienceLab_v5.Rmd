@@ -1,0 +1,1004 @@
+---
+title: "IBM Employers' attrition"
+author: "Giulia Chiaretti (800928), Federica Fiorentini (807124)"
+output: html_document
+---
+
+Stare bene in azienda significa far star bene l'azienda. 
+Quello che può sembrare all'apparenza un gioco di parole è, nei fatti, una realtà di cui prendere atto. 
+Nella realtà imprenditoriale una delle sfide maggiori al giorno d'oggi è riuscire ad impostare una politica di welfare aziendale corretta, che consiste nell'offrire servizi e prestazioni che migliorino la qualità di vita sul luogo di lavoro. 
+
+
+Per evidenziare i fattori principali che portano un dipendente ad abbandonare la propria azienda è stato impostato un problema di classificazione utilizzando un dataset fornito dalla piattaforma Kaggle.
+
+Il dataset è riferito a 1470 dipendenti della società multinazionale IBM, su cui sono state osservate 35 variabili:
+
+  - *Age*: variabile numerica riferita all'età del dipendente;
+  - *Attrition*: variabile target booleana che indica il licenziamento da parte del dipendente( 0=No, 1=Si);
+  - *BusinessTravel*: variabile categorica che indica la frequenza di trasferte (1="No Travel", 2="Travel
+     Farely", 3="Travel Frequently");
+  - *DailyRate*: variabile numerica che indica lo stipendio giornaliero;
+  - *Department*: variabile categorica che indica il settore d'impiego (1="HR", 2="R&D", 3="Sales");
+  - *DistanceFromHome*: variabile numerica che indica la distanza casa-lavoro misurata in miglia;
+  - *Education*: variabile categorica che indica il livello di istruzione (1='Below College'(/licenza media),       2='College'(/diploma superiore), 3='Bachelor'(/laurea triennale), 4='Master'(/laurea magistrale o master),      5='Doctor' (/dottorato di ricerca);
+  - *EducationField*: variabile categorica che indica area di studio (1=HR, 2=LIFE SCIENCES, 3=MARKETING,           4=MEDICAL SCIENCES, 5=OTHERS, 6= TEHCNICAL);
+  - *EmployeeCount*: variabile di dubbio significato, sempre pari ad 1; 
+  - *EmployeeNumber*: ID del dipendente;
+  - *EnvironmentSatisfaction*: variabile categorica che indica il grado di apprezzamento del contesto               lavorativo (1 'Low', 2 'Medium', 3 'High', 4 'Very High');
+  - *Gender*: variabile binaria che indica il sesso del dipendente (1=femmina, 2=maschio);
+  - *HourlyRate*: variabile numerica che indica il compenso orario;
+  - *JobInvolvement*: variabile categorica che indica il coinvolgimento nell'ambiente di lavoro (1 'Low', 2         'Medium', 3 'High', 4 'Very High');
+  - *JobLevel*: variabile categorica che indica il livello all'interno dell'azienda (da 1=junior a 5=partner);
+  - *JobRole*:  variabile categorica che indica il ruolo (categorica 1=HC REP, 2=HR, 3=LAB TECHNICIAN,              4=MANAGER, 5= MANAGING DIRECTOR, 6= REASEARCH DIRECTOR, 7= RESEARCH SCIENTIST, 8=SALES EXECUTIEVE, 9= SALES     REPRESENTATIVE);
+  - *JobSatisfaction*: variabile categorica che indica il grado di soddisfazione del lavoro svolto (1 'Low', 2      'Medium', 3 'High', 4 'Very High');
+  - *MaritalStatus*: variabile categorica che indica lo stato civile (1= divorced, 2= married, 3 =single);
+  - *MonthlyIncome*: variabile numerica che indica lo stipedio mensile;
+  - *MonthlyRate*: 
+  - *NumCompaniesWorked*: variabile numerica che indica il numero di compagnie in cui ha lavorato prima di          quella attuale;
+  - *Over18*: variabile booleana che indica se il dipendente è maggiorenne (1=si, 2=no);
+  - *OverTime*: variabile booleana che indica se il dipendente svolge del lavoro straordinario (1=no, 2=yes);
+  - *PercentSalaryHike*: variabile numerica che indica l' aumento di stipendio percentuale tra il 2015 e il         2016;
+  - *PerformanceRating*: variabile categorica che indica la valutazione delle performance del dipendente (1         'Low', 2 'Good', 3 'Excellent', 4 'Outstanding');
+  - *RelationshipSatisfaction*: variabile categorica che indica il grado di apprezzamento delle relazioni in        ambito lavorativo (1 'Low', 2 'Medium', 3 'High', 4 'Very High');
+  - *StandardHours*: variabile numerica di dubbia interpretazione e pari sempre ad 80;
+  - *StockOptionLevel*: indice che misura diritto di acquistare un determinato ammontare di azioni della società     (da 1= basso a 3 = alto);
+  - *TotalWorkingYears*: variabile numerica che indica gli anni di esperienza lavorativa;
+  - *TrainingTimesLastYear*: variabile numerica che indica il totale di ore di formazione svolte;
+  - *WorkLifeBalance*: variabile categorica basata sul rapporto tra tempo speso al lavoro e tempo libero (1         'Bad', 2 'Good', 3 'Better', 4 'Best')
+  - *YearsAtCompany*: variabile numerica che indica il numero di anni lavorativi nell'azienda; 
+  - *YearsInCurrentRole*: variabile numerica che indica il numero di anni da cui il dipendente riveste lo stesso     ruolo;
+  - *YearsSinceLastPromotion*: variabile numerica che indica il numero di anni trascorsi dall'ultima promozione;
+  - *YearsWithCurrManager*: variabile numerica che indica numero di anni che il dipendente sotto lo stesso          manager.
+
+
+
+```{r, warning=F}
+library('arules')
+library("ggplot2")
+library("tidyr")
+library("dplyr")
+library("corrplot")
+library("miscset")
+library("purrr")
+library('knitr')
+library('gridExtra')
+library('caTools')
+library('e1071')
+library('glmnet')
+library('ROSE')
+library('psych') #factor analysis
+library('GPArotation') #factor analysis
+library('robustHD') #per a funzione standardize
+library('MASS') #per LDA
+library('caret') #confusion matrix e importance
+library('mlbench') #feature importance
+library('randomForest')
+library('rpart')  #decision tree
+library('rpart.plot')
+library('pander')
+library('klaR')
+
+```
+
+**Importazione del file csv**
+```{r, include=T}
+data <- read.csv("C:/Users/FedericaFiorentini(S/Desktop/Progetto DSL/WA_Fn-UseC_-HR-Employee-Attrition.csv", encoding="UTF-8")
+colnames(data)[1] <- "Age"
+
+data=data[,-c(9,10,22,27)]
+
+
+summary(data)
+```
+
+Sono state eliminate 4 variabili perchè inutili a discriminare:
+  - *EmployeeCount*: variabile sempre pari ad 1 e di dubbio significato;
+  - *EmployeeNumber*: ID del dipendente;
+  - *Over18*: perchè sempre pari ad 1 (tutti i dipendenti sono maggiorenni);
+  - *StandardHours*: variabile di dubbio significato e sempre pari a 80.
+
+Analizzando il summary delle variabili è possibile osservare che non sono presenti NA.
+
+Alcune variabili (WorkLifeBalance, StockOptionLevel, PerformanceRating, JobSatisfaction, RelationshipSatisfaction, JobLevel, JobInvolvement, EnvironmentSatisfaction e Education) sono categoriche ma sono state importate come interi e, quindi, si procede con la modifica del type.
+
+```{r, include=T}
+
+names <- c('WorkLifeBalance' ,'StockOptionLevel','PerformanceRating','JobSatisfaction',
+           'RelationshipSatisfaction','JobLevel','JobInvolvement','EnvironmentSatisfaction','Education')
+data[,names] <- lapply(data[,names] , factor)
+
+```
+
+###Data esploration
+
+**Analisi univariata delle variabili**
+
+```{r, include=T}
+#variabili numeriche 
+
+data[1:31] %>%
+  keep(is.numeric) %>%
+  gather() %>%                             
+  ggplot(aes(x = value)) +                     
+  facet_wrap(~ key, scales = "free") +  
+  geom_histogram(fill = "blue")
+
+```
+
+```{r, include=T}
+#variabili categoriche
+
+var_cat <- names(which(sapply(data,is.factor)))
+
+ggplotGrid(ncol = 4,lapply(var_cat[1:4],function(col) {
+  ggplot(data, aes_string(col)) + geom_bar(fill = "red") + 
+    theme(axis.text.x = element_text(size  = 10,
+                                     angle = 45,
+                                     hjust = 1,
+                                     vjust = 1))
+        }))
+ggplotGrid(ncol = 4,lapply(var_cat[5:8],function(col) {
+  ggplot(data, aes_string(col)) + geom_bar(fill = "red") + 
+    theme(axis.text.x = element_text(size  = 10,
+                                     angle = 45,
+                                     hjust = 1,
+                                     vjust = 1))
+        }))
+ggplotGrid(ncol = 4,lapply(var_cat[9:12],function(col) {
+  ggplot(data, aes_string(col)) + geom_bar(fill = "red") + 
+    theme(axis.text.x = element_text(size  = 10,
+                                     angle = 45,
+                                     hjust = 1,
+                                     vjust = 1))
+        }))
+ggplotGrid(ncol = 5,lapply(var_cat[13:17],function(col) {
+  ggplot(data, aes_string(col)) + geom_bar(fill = "red") + 
+    theme(axis.text.x = element_text(size  = 10,
+                                     angle = 45,
+                                     hjust = 1,
+                                     vjust = 1))
+        }))
+
+```
+
+###Data pre-processing
+
+** FEATURE SELECTION** 
+
+Il numero delle variabili ottenuto a seguito dell'eliminazione di alcune di esse, è pari a 31 attributi. Aumentare la complessità del modello con una dimensionalità elevata, non sempre aiuta a migliore la capacità predittiva del modello di classificazione. 
+A tal proposito, si effettua un'analisi delle variabili rimanenti con l'obiettivo di selezionare solamente quelle più utili a spiegare la variabile target. 
+
+Si procede, quindi, con una feature selction rispetto alle variabili categoriche, effettuata tramite il test *Chi-Quadro* che testa l'ipotesi di indipendenza degli attributi con la variabile target.
+
+```{r, warning=F, include=T}
+
+data_factor=data[,which(sapply(data,is.factor))]
+
+chi_test=function(dataset) {
+  matrice=matrix(NA, ncol=3,nrow=dim(dataset)[2]-1)
+for (i in 1:dim(dataset)[2]-1) {
+  matrice[i,1]=colnames(dataset)[i+1]
+  matrice[i,2]=chisq.test(table(dataset$Attrition,dataset[,i+1]))$p.value
+  matrice[i,3]=chisq.test(table(dataset$Attrition,dataset[,i+1]))$statistic 
+}
+  colnames(matrice)=c("variabile categorica","p-value","statistica test")
+  return(kable(matrice))
+  
+}
+
+chi_test(data_factor)
+
+```
+
+Dati i risultati del test, si può rifiutare l'ipotesi nulla di indipendenza con la risposta per tutte le variabile ad eccezione di: 
+
+  - Education (p-value = 0.54);
+  - Gender (p-value=0.29);
+  - PerformanceRating (p-value=0.99);
+  - RelationshipSatisfaction (p-value=0.15).
+
+Si procede, quindi, con la rimozione delle variabili categoriche sopra elencate che risultano indipendenti dalla variabile risposta. 
+
+
+```{r, include=T}
+
+data=data[,-which(names(data) %in% c("Education","Gender","PerformanceRating","RelationshipSatisfaction"))]
+
+```
+
+Per svolgere la feature selection sulle variabili numeriche, è utile inizialmente analizzare la correlazione tra esse, in modo tale da evitare la presenza di multicollinearità nei modelli che andrebbe a penalizzarli. 
+
+```{r, include=T}
+
+var_num <- which(sapply(data,is.numeric))
+corrplot(cor(data[var_num]),type = "upper",method='number',tl.cex = .7,cl.cex = .7,number.cex = 0.7)
+
+```
+
+Si osservano delle correlazioni significativamente elevate tra le seguenti variabili:
+
+  - TotalWorkingYear;
+  - MontlyIncome;
+  - TotalWorkingYear; 
+  - YearsAtCompany;
+  - YearsWithCurrentManager.
+  
+Si analizza, quindi, la distribuzione di queste 5 variabili rispetto alla variabile target.
+
+
+```{r, include=T}
+
+par(mfrow=c(2,3))
+plot(data$YearsWithCurrManager ~data$Attrition)
+plot(data$YearsAtCompany ~data$Attrition)
+plot(data$YearsInCurrentRole ~data$Attrition)
+plot(data$YearsSinceLastPromotion ~data$Attrition)
+plot(data$TotalWorkingYears ~data$Attrition)
+
+par(mfrow=c(1,1))
+
+distr1 <- ggplot(data,aes(x = YearsAtCompany,fill = Attrition)) + 
+  geom_bar(position = "fill")
+
+distr2 <- ggplot(data,aes(x = YearsInCurrentRole,fill = Attrition)) + 
+  geom_bar(position = "fill")
+
+distr3 <- ggplot(data,aes(x = YearsSinceLastPromotion,fill = Attrition)) + 
+  geom_bar(position = "fill")
+
+distr4 <- ggplot(data,aes(x = YearsWithCurrManager,fill = Attrition)) + 
+  geom_bar(position = "fill")
+
+distr5 <- ggplot(data,aes(x = TotalWorkingYears,fill = Attrition)) + 
+  geom_bar(position = "fill")
+
+grid.arrange(distr1, distr2, distr3, distr4, distr5, ncol=2)
+```
+
+Dai grafici, si nota che la distribuzione delle variabili riferite agli "anni lavorativi" è differente all'interno delle due classi di *Attrition*, ad eccezione della variabile *YearsSinceLastPromotion*.
+Sembra, quindi, che questa variabile non sia utile a discriminare l'appartenenza alle due classi. 
+
+Prima di decidere di rimuoverla dall'analisi, però, si applicano due metodologie che hanno l'obiettivo di creare uno o più fattori che "riassumano", tramite una combinazione lineare, le 5 variabili in questione relative agli "anni lavorativi".
+
+**Linear Discriminant Analysis**
+
+La prima tecnica utilizzata è la *Linear Discriminant Analysis*, una tecnica che permette di trovare una combinazione lineare di variabili per aumentare la separazione tra due o più classi di oggetti.
+
+Una delle ipotesi della LDA è la normalità delle variabili che, se non rispettata, non si ha la garanzia di ottenere la soluzione ottimale.
+
+Si effettua, quindi, il test di normalità sulle variabili di interesse, raggruppate nel dataframe "years".
+
+```{r, include=T}
+years <- data[,which(names(data) %in% c("YearsWithCurrManager","YearsAtCompany","YearsInCurrentRole","YearsSinceLastPromotion","TotalWorkingYears"))]
+
+shap_test=function(dataset) {
+  matrice=matrix(NA, ncol=4,nrow=dim(dataset)[2])
+for (i in 1:dim(dataset)[2]) {
+  matrice[i,1]=colnames(dataset)[i]
+  matrice[i,2]=shapiro.test(dataset[,i])$method
+  matrice[i,3]=shapiro.test(dataset[,i])$statistic
+  matrice[i,4]=shapiro.test(dataset[,i])$p.value
+}
+  colnames(matrice)=c("variabile","test method","test statistic","p-value")
+  return(kable(matrice))
+  
+}
+
+shap_test(years)
+```
+
+Nessuna delle variabili "years" risulta seguire una distribuzione normale. Si procede, perciò, con la standardizzazione di queste per poi effettuare la LDA.
+
+```{r, include=T}
+
+stand=function(dataset) {
+  years_s = years
+for (i in 1:dim(dataset)[2]) {
+  years_s[,i]=standardize(dataset[,i], centerFun = mean, scaleFun = sd)
+}
+  return(years_s)
+  
+}
+
+years_stand=stand(years)
+par(mfrow=c(2,3))
+for (i in 1:5){
+  hist(years_stand[,i],probability  =T,xlim=c(-5,5),main = paste('Histogram of', colnames(years_stand)[i]),xlab = colnames(years_stand)[i])
+  curve(dnorm(x,mean(years_stand[,i]),sd(years_stand[,i])),add=T,lwd =2,col = 3)
+}
+```
+
+Dagli istogrammi empirici a cui è stata sovrapposta la distribuzione della normale standard, si evidenzia un andamento *normale*.
+
+Per completezza, si verifica le variabili abbiano una media nulla e varianza unitaria. 
+
+```{r, include=T}
+
+mean_var=function(dataset) {
+  matrice=matrix(NA, ncol=3,nrow=dim(dataset)[2])
+for (i in 1:dim(dataset)[2]) {
+  matrice[i,1]=colnames(dataset)[i]
+  matrice[i,2]=round(mean(dataset[,i]),7)
+  matrice[i,3]=var(dataset[,i])
+}
+  colnames(matrice)=c("variabile","mean","variance")
+  return(kable(matrice))
+  
+}
+mean_var(years_stand)
+```
+
+A seguito della standardizzazione, quindi, è confermata l'ipotesi di normalità delle variabili e si può procedere con la LDA. 
+
+
+```{r, include=T}
+
+LDA_data= years_stand
+LDA_data$Attrition = data$Attrition
+
+linearDA = lda(formula=Attrition ~., data=LDA_data)
+
+linearDA
+
+```
+
+**LDA evaluation**
+
+```{r, include=T}
+predict_LDA <- predict(linearDA, LDA_data)$class #LDA predicted Attrition
+
+probability_LDA <- predict(linearDA, LDA_data)$posterior #LDA predicted Class probability
+
+all.equal(predict_LDA,LDA_data$Attrition)
+
+confusionMatrix(predict_LDA, LDA_data$Attrition, positive = 'Yes')
+
+values_LDA <- predict(linearDA, LDA_data)$x
+ldahist(data=values_LDA, g= LDA_data$Attrition)
+
+plot(values_LDA, col=LDA_data$Attrition)
+
+```
+
+Si può vedere che, tramite la LDA, vengono previsti erroneamente 237 osservazioni che corrispondono alla categoria Attrition=Yes, ovvero la categoria di interesse. 
+Come si evince sia degli istogrammi che dallo scatterplot, la LDA non discrimina opportunamente le due classi. 
+Questo potrebbe essere causato dal problema delle classi sbilanciate. 
+
+Come si nota dal seguente istogramma, infatti, le osservazioni non sono equamente distribuite tra le due classi di *Attrition*.
+
+```{r, include=T}
+
+unbalanced_class=ggplot(data,aes(x=Attrition))+
+  geom_bar(width=0.5,fill="steelblue")+
+  stat_count(binwidth=1, geom="text", aes(label=..count..), vjust=0.25) +
+  theme_minimal()
+
+options(repr.plot.width=8,repr.plot.height=3)
+unbalanced_class 
+```
+
+Si prova, quindi, ad effettuare la LDA a seguito di un oversampling. 
+
+
+```{r, include=T}
+
+LDA_data_over<- ovun.sample(Attrition ~ ., data = LDA_data, method = "over", N=2466)$data
+table(LDA_data_over$Attrition)
+
+```
+
+
+```{r, include=T}
+
+linearDA_over = lda(formula=Attrition ~., data=LDA_data_over)
+predict_LDA_over <- predict(linearDA_over, LDA_data_over)$class
+probability_LDA_over <- predict(linearDA_over, LDA_data_over)$posterior 
+all.equal(predict_LDA_over,LDA_data_over$Attrition) 
+confusionMatrix(predict_LDA_over, LDA_data_over$Attrition, positive = "Yes")
+values_LDA_over <- predict(linearDA_over, LDA_data_over)$x
+ldahist(data=values_LDA_over, g= LDA_data_over$Attrition)
+plot(values_LDA_over, col=LDA_data$Attrition)
+
+```
+
+Si evince che, anche effettuando un oversampling, i risultati non sono soddisfacenti. Infatti, le osservazioni erroneamente classificate sono 959 su 2466. Anche in questo caso, dall'istogramma e dallo scatterplot, si conclude che la LDA non è utile a discrimare le due categorie. Si esclude, perciò, questa tecnica per risolvere i problemi di dimensionalità elevata e di multicollinearità.
+
+
+
+** EXPLORATORY FACTOR ANALYSIS ** 
+
+Si è scelto di effettuare un'altra tecnica di dimensionality reduction, la *Factor Analysis*, un metodo utilizzato per descrivere la variabilità tra le variabili osservate correlate, tramite un numero potenzialmente inferiore di fattori latenti. 
+
+Il grafico seguente viene utilizzato per individuare il numero appropriato di fattori da estrarre. Lo scree plot rappresenta, per ogni numero di fattori, il relativo autovalore, ovvero la percentuale di varianza spiegata. 
+
+```{r, include=T}
+
+# scree plot
+parallel <- fa.parallel(years, fm = 'minres', fa = 'fa')
+
+```
+
+La parallel analysis consiglia di estrarre un numero di fattori pari a 2. Come si evince dal grafico, infatti, aggiungere il terzo fattore non sarebbe conveniente in quanto aggiunge una percentuale di varianza spiegata irrilevante. 
+
+Sempre dallo scree-plot, è possibile notare che c'è molta differenza di variabilità spiegata tra il primo e secondo fattore. Si è pensato, quindi, di verificare se un solo fattore fosse sufficiente a discriminare le osservazioni. 
+
+Si procede con lo svolgilmento della Factor Analysis con un solo fattore.
+
+```{r, include=T}
+
+onefactor <- fa(years,nfactors = 1,rotate = "promax",fm="minres")
+
+summary(onefactor)
+
+fa.diagram(onefactor)
+
+```
+
+Nel summary si osserva che la FA con solo un fattore ha un pvalue prossimo a 0 che porta a rifiutare l'ipotesi nulla "1 factor is sufficient".
+
+Si svolge, quindi, la FA con due fattori.
+
+```{r, include=T}
+
+twofactor <- fa(years,nfactors = 2,rotate = "varimax",fm="minres", scores='regression')
+summary(twofactor)
+fa.diagram(twofactor)
+
+```
+
+Siccome il p-value risulta essere maggiore rispetto all'analisi con un solo fattore, si preferisce "riassumere" le cinque variabili in questione tramite i due fattori.
+
+Si analizzano i loadings delle 5 variabili sui due fattori.
+
+```{r, include=T}
+
+print(twofactor$loadings,cutoff = 0.3)
+
+```
+
+
+In conclusione, con la factor analysis vengono creati due nuovi fattori dati dalla combinazione lineare delle variabili precedenti. In particolare dai loadings si osserva che *YearsAtCompany, TotalWorkingYears e YearSinceLastPromotion* pesano di più sul primo fattore rispetto al secondo e, quindi, F1 potrebbe essere una sitesi dell'**esperienza lavorativa del dipendente**. *YearsInCurrentRole e YearsWithCurrentManager*, invece, pesano di più sul secondo fattore che,invece, potrebbe essere una sintesi degli **esperienza lavorativa nello stesso team** del dipendente.
+
+Aggiungiamo, infine, al dataset le 2 nuove variabili create, eliminando le 5 variabili precedenti. 
+
+```{r, include=T}
+
+data$F1=twofactor$scores[,1]
+data$F2=twofactor$scores[,2]
+
+data <- data[,-which(names(data) %in% c("YearsWithCurrManager","YearsAtCompany","YearsInCurrentRole","YearsSinceLastPromotion","TotalWorkingYears"))]
+dataWithFactor_num<- which(sapply(data,is.numeric))
+corrplot(cor(data[dataWithFactor_num]),type = "upper",method='number',tl.cex = .7,cl.cex = .7,number.cex = 0.7)
+
+```
+
+A questo punto abbiamo risolto il problema della multicollinarità, come si nota dal grafico riportato sopra. Vediamo, infatti, che l'unica correlazione significativa è di 0.5 tra F1 e MonthlyIncome.
+
+Quindi, a questo punto del preprocessing sono state eliminate le seguenti variabili:
+
+  1- EmployCount (perchè sempre pari a 1)
+  2- EmployNumber (perchè è l'ID del dipendente)
+  3- Over18 (percè sempre pari a uno in quanto tutti ii dipendenti sono maggiorenni)
+  4- StandardHour (perchè sempre pari a 80)
+  5- Education (perchè dal chi-quadro test risultava indipendente alla variabile target)
+  6- Gender (perchè dal chi-quadro test risultava indipendente alla variabile target)
+  7- PerformanceRating (perchè dal chi-quadro test risultava indipendente alla variabile target)
+  8- RelationshipSatisfaction (perchè dal chi-quadro test risultava indipendente alla variabile target)
+  9- YearsWithCurrManager (perchè riassunte nei 2 Factor)
+  10- YearsAtCompany (perchè riassunte nei 2 Factor)
+  11- YearsInCurrentRole (perchè riassunte nei 2 Factor)
+  12- YearsSinceLastPromotion (perchè riassunte nei 2 Factor)
+  13- TotalWorkingYears (perchè riassunte nei 2 Factor)
+
+Sono state aggiunti i due fattori:
+  1- F1
+  2- F2
+
+Da uno stato iniziale di 35 variabili si è ottenuto un dataset contenente 24 variabili.
+
+Aggiungiamo un'analisi dell'importana delle variabili perchè ci interessa indagare l'importanza in particolare di HourlyRate, DailyRate e MonthlyRate perchè sono di difficile interpretazione.
+Scrivere due o tre cose di cosa possono significare.
+
+Rimangono comunque alcune variabili di dubbia interpretazione (HourlyRate, DailyRate e MonthlyRate) e, per valutare la loro importanza rispetto ad Attrition, viene rappresentato un ranking delle variabili basato sul modello Learning Vector Quantization (LVQ).
+
+
+```{r, include=T}
+data_over<- ovun.sample(Attrition ~ ., data = data, method = "over", N=2466)$data
+
+set.seed(7)
+# prepare training scheme
+control <- trainControl(method="repeatedcv", number=10, repeats=3)
+# train the model
+model <- train(Attrition~., data=data_over, method="lvq", preProcess="scale", trControl=control)
+# estimate variable importance
+importance <- varImp(model, scale=FALSE)
+# summarize importance
+print(importance)
+# plot importance
+plot(importance)
+```
+Come si si può vedere dal grafico le variabili *HourlyRate, DailyRate e MonthlyRate* non risultano di particolare importanza quindi, dal momento il significato non è chiaro, si preferisce eliminarle dall'analisi.
+
+```{r, include=T}
+data <- data[,-which(names(data) %in% c("MonthlyRate","DailyRate","HourlyRate"))]
+dim(data)
+```
+
+###Data Modeling
+
+Terminata il pre-processing, si passa alla fase di **Data Modeling**.
+
+Si è scelto di sviluppare i seguenti modelli:
+
+  - *Decision Tree*;
+  - *Random Forest*;
+  - *Stochastic Gradient Boosting*;
+  - *Neural Network*;
+  - *Support Vector Machine*;
+  - *Logistic Regression*.
+
+Per ottenere una validazione dei classificatori utilizzati è stato utilizzato un approccio basato sulla *cross validation*, il cosiddetto **K-Folds Cross Validation**. Questa tecnica statistica suddivide il dataset in k-partizioni di eguale numerosità e assicura che tutti i record vengano utilizzati almeno una volta sia nel *training set* che nel *test set*. 
+Il numero di folds utilizzato è pari a k=10. Nei casi in cui non è risultato computazionalmente troppo pesante, è stata utilizzata una *repeated k-folds cross validation*. 
+
+I parametri caratteristici di ogni modello, non sono stati scelti a priori ma è stato utilizzato un sistema di tuning al fine di utilizzare il parametro migliore.
+
+Infine, sia per tunare che per confrontare i modelli, è stata la ROC.
+
+I modelli vengono appresi sul train set, pari al 67% del dataset iniziale e su cui viene effettuato l'oversampling per risolvere il problema delle classi sbilanciate.
+
+Essendo in presenza di classi sbilanciate, la misura più appropriata per confrontare i modello non è l'*accurancy* ma bensì la *precision* e la *recall*, riassunte dalla **F1-Measure** (media armonica delle due precedenti metriche).
+
+```{r, include=T}
+
+#train e test set
+smp_size <- floor(0.67 * nrow(data))
+
+set.seed(1)
+train_ind <- sample(seq_len(nrow(data)), size = smp_size)
+
+train <- data[train_ind, ]
+test <- data[-train_ind, ]
+
+#oversampling train set
+train<- ovun.sample(Attrition ~ ., data = train, method = "over", N=1660)$data
+
+```
+
+
+**Decision Tree**
+
+Il decision tree, in particolare, viene anche utilizzato per selezionare un numero inferiore di variabili con cui stimare i modelli *Logistic Regression, Neural Network e Support Vector Machine*. Tutti gli altri modelli, invece, eseguono un'eliminazione recursiva delle variabili automaticamente e non sono penalizzati dall'inserimento di tutte le variabili. 
+
+```{r, include=T}
+
+set.seed(123)
+metric <- "ROC"
+Ctrl <- trainControl(method = "cv" , number=10, classProbs = TRUE,
+summaryFunction = twoClassSummary)
+rpartTune <- train(Attrition ~ ., data = train, method = "rpart",tuneLength = 15, trControl = Ctrl, metric=metric)
+rpartTune
+
+```
+
+Il tuning del CP indica come parametro migliore cp = 0.003614458.
+
+```{r, include=T}
+pander(getTrainPerf(rpartTune))
+```
+
+```{r, include=T}
+Vimportance <- varImp(rpartTune)
+plot(Vimportance) 
+```
+
+
+
+```{r, include=T, warning=F}
+set.seed(123)
+Ctrl_save <- trainControl(method = "cv" , number=10, summaryFunction = twoClassSummary,
+classProbs = TRUE, savePredictions = TRUE)
+rpartTuneMy <- train(Attrition ~ ., data = train, method = "rpart",
+tuneGrid=data.frame(cp=0.003614458),
+trControl = Ctrl_save, metric=metric)
+
+set.seed(123)
+mytree <- rpart(Attrition ~ ., data = train, method = "class", cp = 0.003614458)
+rpart.plot(mytree, type = 4, extra = 101, cex = 0.5)
+```
+
+
+**Random Forest**
+
+```{r, include=T}
+customRF <- list(type = "Classification", library = "randomForest", loop = NULL)
+customRF$parameters <- data.frame(parameter = c("mtry", "ntree"),
+class = rep("numeric", 2),
+label = c("mtry", "ntree"))
+customRF$grid <- function(x, y, len = NULL, search = "grid") {}
+customRF$fit <- function(x, y, wts, param, lev, last, weights, classProbs, ...) {
+randomForest(x, y, mtry = param$mtry, ntree=param$ntree, ...)
+}
+customRF$predict <- function(modelFit, newdata, preProc = NULL, submodels = NULL)
+predict(modelFit, newdata)
+customRF$prob <- function(modelFit, newdata, preProc = NULL, submodels = NULL)
+predict(modelFit, newdata, type = "prob")
+customRF$sort <- function(x) x[order(x[,1]),]
+customRF$levels <- function(x) x$classes
+set.seed(123)
+tunegrid <- expand.grid(.mtry=c(4:9), .ntree=c(100,500))
+rpartTuneMyRf <- train(Attrition ~ ., data = train, method = customRF,
+tuneGrid=tunegrid, trControl = Ctrl, metric=metric)
+plot(rpartTuneMyRf)
+```
+
+Dal grafico si evince che il modello migliore è con 4 foreste e 500 alberi.
+
+```{r, include=T}
+
+set.seed(123)
+tunegrid <- expand.grid(.mtry=4, .ntree=500)
+rpartTuneMyRf_ok <- train(Attrition ~ ., data = train, method = customRF,
+tuneGrid=tunegrid, trControl = Ctrl_save, metric=metric)
+
+```
+
+
+**Naive-Bayes**
+
+
+```{r, include=T}
+
+set.seed(123)
+grid <- expand.grid(fL=0, usekernel = TRUE, adjust=1)
+NBfit <- train(Attrition ~ ., data = train, method="nb", tuneGrid=grid,
+trControl=Ctrl_save, metric=metric)
+pander(getTrainPerf(NBfit))
+
+```
+
+
+**Stochastic Gradient Boosting**
+
+```{r,echo=F,results=hide, include=T}
+
+set.seed(123)
+library(gbm)
+STGfit <- train(Attrition ~ ., data = train, method="gbm", tuneLength=3,
+trControl=Ctrl, metric=metric)  #il tuning automatico risulta essere il migliore
+STGfit
+
+```
+
+```{r, include=T}
+set.seed(123)
+grid <- expand.grid(n.trees=150, interaction.depth=3, shrinkage=0.1, n.minobsinnode=10)
+STGfit.one.shot <- train(Attrition ~ ., data = train, method="gbm", tuneGrid=grid, trControl=Ctrl_save, metric=metric)
+```
+
+Vengono selezionate le 4 variabili che risultano più importanti dall'analisi del decision tree:
+  - Age
+  - Monthly Income
+  - F1
+  - F2
+
+```{r, include=T}
+TRAINSELECT2 <- train[, c(1,2,13,20,21)]
+pander(summary(TRAINSELECT2))
+```
+
+**Neural Network**
+
+Per tunare la NNET viene effettuato il pre-processing tramite PCA, nromalizzazione e standardizzazione per poi scegliere il migliore. 
+
+```{r, include=T}
+
+#PCA
+tunegrid <- expand.grid(size=c(1:5), decay = c(0.0002, 0.0003, 0.00001, 0.0001))
+nnetFit_defgridDR1 <- train(TRAINSELECT2[-2], TRAINSELECT2$Attrition, 
+                            method = "nnet",
+                            preProcess = 'pca',
+                            metric=metric,
+                            trControl=Ctrl, tuneGrid=tunegrid,
+                            trace = FALSE,
+                            maxit = 100)
+pander(getTrainPerf(nnetFit_defgridDR1))
+```
+
+
+```{r, include=T}
+pander(nnetFit_defgridDR1$bestTune)
+```
+
+```{r, include=T}
+
+#normalizzazione
+set.seed(123)
+tunegrid <- expand.grid(size=c(1:5), decay = c(0.0002, 0.0003, 0.00001, 0.0001))
+nnetFit_defgridDR3 <- train(TRAINSELECT2[-2], TRAINSELECT2$Attrition,
+method = "nnet",
+preProcess = c('range'),
+metric=metric,
+trControl=Ctrl, tuneGrid=tunegrid,
+trace = FALSE,
+maxit = 100)
+pander(getTrainPerf(nnetFit_defgridDR3))
+
+```
+
+```{r, include=T}
+pander(nnetFit_defgridDR3$bestTune)
+```
+
+
+```{r, include=T}
+
+#standardizzazione
+set.seed(123)
+tunegrid <- expand.grid(size=c(1:5), decay = c(0.0002, 0.0003, 0.00001, 0.0001))
+nnetFit_defgridDR2 <- train(TRAINSELECT2[-2], TRAINSELECT2$Attrition,
+method = "nnet",
+preProcess = c('center', "scale"),
+metric=metric,
+trControl=Ctrl, tuneGrid=tunegrid,
+trace = FALSE,
+maxit = 100)
+pander(getTrainPerf(nnetFit_defgridDR2))
+
+```
+
+```{r, include=T}
+pander(nnetFit_defgridDR2$bestTune)
+```
+
+Si nota che il pre-process migliore è la standardizzazione. 
+
+```{r, include=T}
+
+set.seed(123)
+tunegrid <- expand.grid(size=5, decay =0.00001)
+nnetFit_finale <- train(TRAINSELECT2[-2], TRAINSELECT2$Attrition,
+method = "nnet",
+preProcess = c( 'center' ,'scale'),
+metric=metric,
+trControl=Ctrl_save, tuneGrid=tunegrid,
+trace = FALSE,
+maxit = 100)
+
+```
+
+
+
+**Support Vector Machine**
+
+```{r, include=T}
+
+set.seed(123)
+library(kernlab)
+svmGrid <- expand.grid(C=seq(0.2,1,0.2))
+svm.tune <- train(TRAINSELECT2[-2], TRAINSELECT2$Attrition,
+method = "svmLinear",
+preProc = c("center", "scale"),
+tuneGrid = svmGrid,
+metric = metric,
+trControl = Ctrl)
+plot(svm.tune)
+
+```
+
+```{r, include=T}
+
+set.seed(123)
+svm.tune.ok <- train(TRAINSELECT2[-2], TRAINSELECT2$Attrition,
+method = "svmLinear",
+preProc = c("center", "scale"),
+tuneGrid = data.frame(C=0.2),
+metric = metric,
+trControl = Ctrl_save)
+
+```
+
+
+**Logistic Regression**
+
+
+```{r, include=T}
+
+#con tutte le variabili
+set.seed(123)
+logistic <- train(Attrition~., data=train, trControl=Ctrl_save, metric=metric,
+method="glm",family=binomial())
+pander(getTrainPerf(logistic))
+
+```
+
+
+```{r, include=T}
+
+#con le 4 variabili selezionate
+
+set.seed(123)
+logistic_sub <- train(Attrition~., data=TRAINSELECT2, trControl=Ctrl_save, metric=metric,
+method="glm",family=binomial())
+pander(getTrainPerf(logistic_sub))
+```
+
+Si confrontano le ROC curve dei modelli stimati aggiungendo il valore dell'AUC (area under the curve) calcolato su ogni modello.
+
+```{r, include=T}
+
+roc_values <- cbind(as.data.frame(logistic_sub$pred$obs), as.data.frame(logistic_sub$pred$Yes))
+gbm <- as.data.frame(STGfit.one.shot$pred$Yes)
+log_tot <- as.data.frame(logistic$pred$Yes)
+nb <- as.data.frame(NBfit$pred$Yes)
+nnet <- as.data.frame(nnetFit_finale$pred$Yes)
+rf <- as.data.frame(rpartTuneMyRf_ok$pred$Yes)
+svm <- as.data.frame(svm.tune.ok$pred$Yes)
+
+roc_values <- cbind(roc_values, log_tot, gbm, nb, nnet, rf, svm)
+names(roc_values) <- c("obs","log_sub", "log_tot", "gbm", "nb", "nnet", "rf", "svm")
+library(plotROC)
+longtest <- melt_roc(roc_values, "obs", c("log_sub", "log_tot", "gbm", "nb", "nnet", "rf","svm"))
+longtest$D <- ifelse(longtest$D=="Yes",1,0)
+names(longtest)[3] <- "Models"
+g <- ggplot(longtest, aes(m=M, d=D, color=Models)) +
+geom_roc(n.cuts=0) +
+coord_equal() +
+style_roc(xlab="1-Specificity", ylab="Sensitivity")
+
+g + annotate("text", x=0.75, y=0.4, label="AUC") +
+annotate("text", x=0.75, y=0.35, label=paste("gbm =", round(calc_auc(g)$AUC[1], 4))) +
+annotate("text", x=0.75, y=0.30, label=paste("log_sub =", round(calc_auc(g)$AUC[2], 4))) +
+annotate("text", x=0.75, y=0.25, label=paste("log_tot =", round(calc_auc(g)$AUC[3], 4))) +
+annotate("text", x=0.75, y=0.20, label=paste("nb =", round(calc_auc(g)$AUC[4], 4))) +
+annotate("text", x=0.75, y=0.15, label=paste("nnet =", round(calc_auc(g)$AUC[5], 4))) +
+annotate("text", x=0.75, y=0.10, label=paste("rf =", round(calc_auc(g)$AUC[6], 4))) +
+annotate("text", x=0.75, y=0.05, label=paste("svm =", round(calc_auc(g)$AUC[7], 4)))
+```
+
+Il modello migliore, basandosi sulla ROC Curve, risulta essere il Random Forest con un AUC pari a 0.9389.
+
+Per verificare ulteriormente la bontà di questo modello si confrontano i valori relativi a *precision, recall e F1-measure* calcolati testando i diversi classificatori sul test set.
+
+```{r, include=T}
+
+test_model<- function(model, y, len = NULL, search = "grid") {
+  test_pred <- predict(model,test)
+  prec <- precision(data = test_pred, reference = test$Attrition)
+  Fmeas <- F_meas(data = test_pred, reference = test$Attrition)
+  rec <- recall(data = test_pred, reference = test$Attrition)
+  
+  return (c(prec, rec, Fmeas))
+}
+
+```
+
+```{r, include=T}
+
+performance_value= as.data.frame(test_model(rpartTuneMyRf_ok))
+performance_value$gbm= test_model(STGfit.one.shot)
+performance_value$log_tot= test_model(logistic)
+performance_value$nb= test_model(NBfit)
+performance_value$nnet= test_model(nnetFit_finale)
+colnames(performance_value)[1]= 'rf'
+rownames(performance_value)= c('Precision','Recall','F1-measure')
+kable(performance_value)
+
+```
+
+Come era prevedibile, il Random Forest risulta avere le metriche migliori, in particolare ha un valore della F1-measure pari a 0.9193.
+
+### Conclusioni
+
+Per definire quali sono i fattori che più inducono un dipendente ad abbandonare l'azienda, si utilizza il modello Random Forest poichè è risultato essere il miglior classificatore. 
+
+Si stila un ranking delle variabili in base alla loro importanza nel prevedere la risposta *Attrition*.
+
+```{r}
+importance_rf <- varImp(rpartTuneMyRf_ok, scale=FALSE)
+# summarize importance
+print(importance_rf)
+# plot importance
+plot(importance_rf)
+```
+
+Si può concludere che, nel prevedere se un dipendente abbandonerà la propria azienda, le variabili che maggiormente influiscono sulla risposta (con un'importanza maggiore del 60%) sono:
+  - *MonthlyIncome*;
+  - *Overtime*;
+  - F1: *"Esperienza lavorativa del dipendente"*
+    data dalla combinazione lineare di 
+  - *JobLevel*;
+  - *Age*;
+  - F2: *"Esperienza lavorativa nello stesso team"*;
+  - *MaritalStatus*;
+  - *StockOptionLevel*.
+
+
+
+```{r}
+
+user_test1=test[1,]
+user_test5<-user_test4<-user_test3<-user_test2<-user_test1
+user_test2$MonthlyIncome<-4180
+user_test3$MaritalStatus<-'Married'
+user_test4$OverTime<-'Yes'
+user_test5$Age<-61
+
+
+predict(rpartTuneMyRf_ok,user_test1, type="prob")
+predict(rpartTuneMyRf_ok,user_test2, type="prob") #stipendio
+predict(rpartTuneMyRf_ok,user_test3, type="prob") #marital status
+predict(rpartTuneMyRf_ok,user_test4, type="prob") #overtime
+predict(rpartTuneMyRf_ok,user_test5, type="prob") #age
+
+```
+
+
+
+
+```{r}
+
+svmProb <- function(rpartTuneMyRf_ok, test, preProc = NULL, submodels = NULL)
+kernlab::predict(rpartTuneMyRf_ok, test, type = "probabilities")
+lpSVM$prob <- svmProb
+
+```
+
+
+
+
+
+
+
+
+
+
+questo ci potrà servire da fare insieme al loistico per evitare l'overfitting
+file:///C:/Users/GiuliaChiaretti(Stag/Downloads/2019_bagged_logistic_.html
+```{r, include=T}
+bagged_logistic <- function(formula, data, nrep = 1000) {
+  X <- model.matrix(formula, data) # matrix of regressors
+  k <- ncol(X)                     # number of regressors
+  n <- nrow(X)                     # number of observations
+  B <- matrix(0, k, nrep)          # will contain bagged estimates of coefficients
+  for (i in 1:nrep) {
+    ndx <- sample.int(n, replace = TRUE) # random index of observations (for bootstrap)
+    B[, i] <- glm(formula, data[ndx, ], family = "binomial")$coefficients
+  }
+  structure(list(coefficients = B,
+                 formula = formula),
+            class = "bagged_logistic")
+}
+
+# function to predict using a bagged_logistic object
+predict.bagged_logistic <- function(x, newdata, ...) {
+  X <- model.matrix(x$formula, newdata)          # matrix of regressors
+  rowMeans(1 / (1 + exp(-X %*% x$coefficients))) # mean of predicted probabilities
+}
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
