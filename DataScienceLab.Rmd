@@ -5,15 +5,15 @@ output: html_document
 ---
 
 Stare bene in azienda significa far star bene l'azienda. 
-Quello che puÚ sembrare all'apparenza un gioco di parole Ë, nei fatti, una realt‡ di cui prendere atto. 
-Nella realt‡ imprenditoriale una delle sfide maggiori al giorno d'oggi Ë riuscire ad impostare una politica di welfare aziendale corretta, che consiste nell'offrire servizi e prestazioni che migliorino la qualit‡ di vita sul luogo di lavoro. 
+Quello che pu√≤ sembrare all'apparenza un gioco di parole √®, nei fatti, una realt√† di cui prendere atto. 
+Nella realt√† imprenditoriale una delle sfide maggiori al giorno d'oggi √® riuscire ad impostare una politica di welfare aziendale corretta, che consiste nell'offrire servizi e prestazioni che migliorino la qualit√† di vita sul luogo di lavoro. 
 
 
-Per evidenziare i fattori principali che portano un dipendente ad abbandonare la propria azienda Ë stato impostato un problema di classificazione utilizzando un dataset fornito dalla piattaforma Kaggle.
+Per evidenziare i fattori principali che portano un dipendente ad abbandonare la propria azienda √® stato impostato un problema di classificazione utilizzando un dataset fornito dalla piattaforma Kaggle.
 
-Il dataset Ë riferito a 1470 dipendenti della societ‡ multinazionale IBM, su cui sono state osservate 35 variabili:
+Il dataset √® riferito a 1470 dipendenti della societ√† multinazionale IBM, su cui sono state osservate 35 variabili:
 
-  - *Age*: variabile numerica riferita all'et‡ del dipendente;
+  - *Age*: variabile numerica riferita all'et√† del dipendente;
   - *Attrition*: variabile target booleana che indica il licenziamento da parte del dipendente( 0=No, 1=Si);
   - *BusinessTravel*: variabile categorica che indica la frequenza di trasferte (1="No Travel", 2="Travel
      Farely", 3="Travel Frequently");
@@ -35,13 +35,13 @@ Il dataset Ë riferito a 1470 dipendenti della societ‡ multinazionale IBM, su cui
   - *MonthlyIncome*: variabile numerica che indica lo stipedio mensile;
   - *MonthlyRate*: 
   - *NumCompaniesWorked*: variabile numerica che indica il numero di compagnie in cui ha lavorato prima di          quella attuale;
-  - *Over18*: variabile booleana che indica se il dipendente Ë maggiorenne (1=si, 2=no);
+  - *Over18*: variabile booleana che indica se il dipendente √® maggiorenne (1=si, 2=no);
   - *OverTime*: variabile booleana che indica se il dipendente svolge del lavoro straordinario (1=no, 2=yes);
   - *PercentSalaryHike*: variabile numerica che indica l' aumento di stipendio percentuale tra il 2015 e il         2016;
   - *PerformanceRating*: variabile categorica che indica la valutazione delle performance del dipendente (1         'Low', 2 'Good', 3 'Excellent', 4 'Outstanding');
   - *RelationshipSatisfaction*: variabile categorica che indica il grado di apprezzamento delle relazioni in        ambito lavorativo (1 'Low', 2 'Medium', 3 'High', 4 'Very High');
   - *StandardHours*: variabile numerica di dubbia interpretazione e pari sempre ad 80;
-  - *StockOptionLevel*: indice che misura diritto di acquistare un determinato ammontare di azioni della societ‡     (da 1= basso a 3 = alto);
+  - *StockOptionLevel*: indice che misura diritto di acquistare un determinato ammontare di azioni della societ√†     (da 1= basso a 3 = alto);
   - *TotalWorkingYears*: variabile numerica che indica gli anni di esperienza lavorativa;
   - *TrainingTimesLastYear*: variabile numerica che indica il totale di ore di formazione svolte;
   - *WorkLifeBalance*: variabile categorica basata sul rapporto tra tempo speso al lavoro e tempo libero (1         'Bad', 2 'Good', 3 'Better', 4 'Best')
@@ -91,13 +91,13 @@ data=data[,-c(9,10,22,27)]
 summary(data)
 ```
 
-Sono state eliminate 4 variabili perchË inutili a discriminare:
+Sono state eliminate 4 variabili perch√® inutili a discriminare:
   - *EmployeeCount*: variabile sempre pari ad 1 e di dubbio significato;
   - *EmployeeNumber*: ID del dipendente;
-  - *Over18*: perchË sempre pari ad 1 (tutti i dipendenti sono maggiorenni);
+  - *Over18*: perch√® sempre pari ad 1 (tutti i dipendenti sono maggiorenni);
   - *StandardHours*: variabile di dubbio significato e sempre pari a 80.
 
-Analizzando il summary delle variabili Ë possibile osservare che non sono presenti NA.
+Analizzando il summary delle variabili √® possibile osservare che non sono presenti NA.
 
 Alcune variabili (WorkLifeBalance, StockOptionLevel, PerformanceRating, JobSatisfaction, RelationshipSatisfaction, JobLevel, JobInvolvement, EnvironmentSatisfaction e Education) sono categoriche ma sono state importate come interi e, quindi, si procede con la modifica del type.
 
@@ -165,8 +165,8 @@ ggplotGrid(ncol = 5,lapply(var_cat[13:17],function(col) {
 
 ** FEATURE SELECTION** 
 
-Il numero delle variabili ottenuto a seguito dell'eliminazione di alcune di esse, Ë pari a 31 attributi. Aumentare la complessit‡ del modello con una dimensionalit‡ elevata, non sempre aiuta a migliore la capacit‡ predittiva del modello di classificazione. 
-A tal proposito, si effettua un'analisi delle variabili rimanenti con l'obiettivo di selezionare solamente quelle pi˘ utili a spiegare la variabile target. 
+Il numero delle variabili ottenuto a seguito dell'eliminazione di alcune di esse, √® pari a 31 attributi. Aumentare la complessit√† del modello con una dimensionalit√† elevata, non sempre aiuta a migliore la capacit√† predittiva del modello di classificazione. 
+A tal proposito, si effettua un'analisi delle variabili rimanenti con l'obiettivo di selezionare solamente quelle pi√π utili a spiegare la variabile target. 
 
 Si procede, quindi, con una feature selction rispetto alle variabili categoriche, effettuata tramite il test *Chi-Quadro* che testa l'ipotesi di indipendenza degli attributi con la variabile target.
 
@@ -190,7 +190,7 @@ chi_test(data_factor)
 
 ```
 
-Dati i risultati del test, si puÚ rifiutare l'ipotesi nulla di indipendenza con la risposta per tutte le variabile ad eccezione di: 
+Dati i risultati del test, si pu√≤ rifiutare l'ipotesi nulla di indipendenza con la risposta per tutte le variabile ad eccezione di: 
 
   - Education (p-value = 0.54);
   - Gender (p-value=0.29);
@@ -206,7 +206,7 @@ data=data[,-which(names(data) %in% c("Education","Gender","PerformanceRating","R
 
 ```
 
-Per svolgere la feature selection sulle variabili numeriche, Ë utile inizialmente analizzare la correlazione tra esse, in modo tale da evitare la presenza di multicollinearit‡ nei modelli che andrebbe a penalizzarli. 
+Per svolgere la feature selection sulle variabili numeriche, √® utile inizialmente analizzare la correlazione tra esse, in modo tale da evitare la presenza di multicollinearit√† nei modelli che andrebbe a penalizzarli. 
 
 ```{r, include=T}
 
@@ -255,18 +255,18 @@ distr5 <- ggplot(data,aes(x = TotalWorkingYears,fill = Attrition)) +
 grid.arrange(distr1, distr2, distr3, distr4, distr5, ncol=2)
 ```
 
-Dai grafici, si nota che la distribuzione delle variabili riferite agli "anni lavorativi" Ë differente all'interno delle due classi di *Attrition*, ad eccezione della variabile *YearsSinceLastPromotion*.
+Dai grafici, si nota che la distribuzione delle variabili riferite agli "anni lavorativi" √® differente all'interno delle due classi di *Attrition*, ad eccezione della variabile *YearsSinceLastPromotion*.
 Sembra, quindi, che questa variabile non sia utile a discriminare l'appartenenza alle due classi. 
 
-Prima di decidere di rimuoverla dall'analisi, perÚ, si applicano due metodologie che hanno l'obiettivo di creare uno o pi˘ fattori che "riassumano", tramite una combinazione lineare, le 5 variabili in questione relative agli "anni lavorativi".
+Prima di decidere di rimuoverla dall'analisi, per√≤, si applicano due metodologie che hanno l'obiettivo di creare uno o pi√π fattori che "riassumano", tramite una combinazione lineare, le 5 variabili in questione relative agli "anni lavorativi".
 
 **Linear Discriminant Analysis**
 
-La prima tecnica utilizzata Ë la *Linear Discriminant Analysis*, una tecnica che permette di trovare una combinazione lineare di variabili per aumentare la separazione tra due o pi˘ classi di oggetti.
+La prima tecnica utilizzata √® la *Linear Discriminant Analysis*, una tecnica che permette di trovare una combinazione lineare di variabili per aumentare la separazione tra due o pi√π classi di oggetti.
 
-Una delle ipotesi della LDA Ë la normalit‡ delle variabili che, se non rispettata, non si ha la garanzia di ottenere la soluzione ottimale.
+Una delle ipotesi della LDA √® la normalit√† delle variabili che, se non rispettata, non si ha la garanzia di ottenere la soluzione ottimale.
 
-Si effettua, quindi, il test di normalit‡ sulle variabili di interesse, raggruppate nel dataframe "years".
+Si effettua, quindi, il test di normalit√† sulle variabili di interesse, raggruppate nel dataframe "years".
 
 ```{r, include=T}
 years <- data[,which(names(data) %in% c("YearsWithCurrManager","YearsAtCompany","YearsInCurrentRole","YearsSinceLastPromotion","TotalWorkingYears"))]
@@ -287,7 +287,7 @@ for (i in 1:dim(dataset)[2]) {
 shap_test(years)
 ```
 
-Nessuna delle variabili "years" risulta seguire una distribuzione normale. Si procede, perciÚ, con la standardizzazione di queste per poi effettuare la LDA.
+Nessuna delle variabili "years" risulta seguire una distribuzione normale. Si procede, perci√≤, con la standardizzazione di queste per poi effettuare la LDA.
 
 ```{r, include=T}
 
@@ -308,7 +308,7 @@ for (i in 1:5){
 }
 ```
 
-Dagli istogrammi empirici a cui Ë stata sovrapposta la distribuzione della normale standard, si evidenzia un andamento *normale*.
+Dagli istogrammi empirici a cui √® stata sovrapposta la distribuzione della normale standard, si evidenzia un andamento *normale*.
 
 Per completezza, si verifica le variabili abbiano una media nulla e varianza unitaria. 
 
@@ -328,7 +328,7 @@ for (i in 1:dim(dataset)[2]) {
 mean_var(years_stand)
 ```
 
-A seguito della standardizzazione, quindi, Ë confermata l'ipotesi di normalit‡ delle variabili e si puÚ procedere con la LDA. 
+A seguito della standardizzazione, quindi, √® confermata l'ipotesi di normalit√† delle variabili e si pu√≤ procedere con la LDA. 
 
 
 ```{r, include=T}
@@ -360,7 +360,7 @@ plot(values_LDA, col=LDA_data$Attrition)
 
 ```
 
-Si puÚ vedere che, tramite la LDA, vengono previsti erroneamente 237 osservazioni che corrispondono alla categoria Attrition=Yes, ovvero la categoria di interesse. 
+Si pu√≤ vedere che, tramite la LDA, vengono previsti erroneamente 237 osservazioni che corrispondono alla categoria Attrition=Yes, ovvero la categoria di interesse. 
 Come si evince sia degli istogrammi che dallo scatterplot, la LDA non discrimina opportunamente le due classi. 
 Questo potrebbe essere causato dal problema delle classi sbilanciate. 
 
@@ -401,13 +401,13 @@ plot(values_LDA_over, col=LDA_data$Attrition)
 
 ```
 
-Si evince che, anche effettuando un oversampling, i risultati non sono soddisfacenti. Infatti, le osservazioni erroneamente classificate sono 959 su 2466. Anche in questo caso, dall'istogramma e dallo scatterplot, si conclude che la LDA non Ë utile a discrimare le due categorie. Si esclude, perciÚ, questa tecnica per risolvere i problemi di dimensionalit‡ elevata e di multicollinearit‡.
+Si evince che, anche effettuando un oversampling, i risultati non sono soddisfacenti. Infatti, le osservazioni erroneamente classificate sono 959 su 2466. Anche in questo caso, dall'istogramma e dallo scatterplot, si conclude che la LDA non √® utile a discrimare le due categorie. Si esclude, perci√≤, questa tecnica per risolvere i problemi di dimensionalit√† elevata e di multicollinearit√†.
 
 
 
 ** EXPLORATORY FACTOR ANALYSIS ** 
 
-Si Ë scelto di effettuare un'altra tecnica di dimensionality reduction, la *Factor Analysis*, un metodo utilizzato per descrivere la variabilit‡ tra le variabili osservate correlate, tramite un numero potenzialmente inferiore di fattori latenti. 
+Si √® scelto di effettuare un'altra tecnica di dimensionality reduction, la *Factor Analysis*, un metodo utilizzato per descrivere la variabilit√† tra le variabili osservate correlate, tramite un numero potenzialmente inferiore di fattori latenti. 
 
 Il grafico seguente viene utilizzato per individuare il numero appropriato di fattori da estrarre. Lo scree plot rappresenta, per ogni numero di fattori, il relativo autovalore, ovvero la percentuale di varianza spiegata. 
 
@@ -420,7 +420,7 @@ parallel <- fa.parallel(years, fm = 'minres', fa = 'fa')
 
 La parallel analysis consiglia di estrarre un numero di fattori pari a 2. Come si evince dal grafico, infatti, aggiungere il terzo fattore non sarebbe conveniente in quanto aggiunge una percentuale di varianza spiegata irrilevante. 
 
-Sempre dallo scree-plot, Ë possibile notare che c'Ë molta differenza di variabilit‡ spiegata tra il primo e secondo fattore. Si Ë pensato, quindi, di verificare se un solo fattore fosse sufficiente a discriminare le osservazioni. 
+Sempre dallo scree-plot, √® possibile notare che c'√® molta differenza di variabilit√† spiegata tra il primo e secondo fattore. Si √® pensato, quindi, di verificare se un solo fattore fosse sufficiente a discriminare le osservazioni. 
 
 Si procede con lo svolgilmento della Factor Analysis con un solo fattore.
 
@@ -457,7 +457,7 @@ print(twofactor$loadings,cutoff = 0.3)
 ```
 
 
-In conclusione, con la factor analysis vengono creati due nuovi fattori dati dalla combinazione lineare delle variabili precedenti. In particolare dai loadings si osserva che *YearsAtCompany, TotalWorkingYears e YearSinceLastPromotion* pesano di pi˘ sul primo fattore rispetto al secondo e, quindi, F1 potrebbe essere una sitesi dell'**esperienza lavorativa del dipendente**. *YearsInCurrentRole e YearsWithCurrentManager*, invece, pesano di pi˘ sul secondo fattore che,invece, potrebbe essere una sintesi degli **esperienza lavorativa nello stesso team** del dipendente.
+In conclusione, con la factor analysis vengono creati due nuovi fattori dati dalla combinazione lineare delle variabili precedenti. In particolare dai loadings si osserva che *YearsAtCompany, TotalWorkingYears e YearSinceLastPromotion* pesano di pi√π sul primo fattore rispetto al secondo e, quindi, F1 potrebbe essere una sitesi dell'**esperienza lavorativa del dipendente**. *YearsInCurrentRole e YearsWithCurrentManager*, invece, pesano di pi√π sul secondo fattore che,invece, potrebbe essere una sintesi degli **esperienza lavorativa nello stesso team** del dipendente.
 
 Aggiungiamo, infine, al dataset le 2 nuove variabili create, eliminando le 5 variabili precedenti. 
 
@@ -472,31 +472,31 @@ corrplot(cor(data[dataWithFactor_num]),type = "upper",method='number',tl.cex = .
 
 ```
 
-A questo punto abbiamo risolto il problema della multicollinarit‡, come si nota dal grafico riportato sopra. Vediamo, infatti, che l'unica correlazione significativa Ë di 0.5 tra F1 e MonthlyIncome.
+A questo punto abbiamo risolto il problema della multicollinarit√†, come si nota dal grafico riportato sopra. Vediamo, infatti, che l'unica correlazione significativa √® di 0.5 tra F1 e MonthlyIncome.
 
 Quindi, a questo punto del preprocessing sono state eliminate le seguenti variabili:
 
-  1- EmployCount (perchË sempre pari a 1)
-  2- EmployNumber (perchË Ë l'ID del dipendente)
-  3- Over18 (percË sempre pari a uno in quanto tutti ii dipendenti sono maggiorenni)
-  4- StandardHour (perchË sempre pari a 80)
-  5- Education (perchË dal chi-quadro test risultava indipendente alla variabile target)
-  6- Gender (perchË dal chi-quadro test risultava indipendente alla variabile target)
-  7- PerformanceRating (perchË dal chi-quadro test risultava indipendente alla variabile target)
-  8- RelationshipSatisfaction (perchË dal chi-quadro test risultava indipendente alla variabile target)
-  9- YearsWithCurrManager (perchË riassunte nei 2 Factor)
-  10- YearsAtCompany (perchË riassunte nei 2 Factor)
-  11- YearsInCurrentRole (perchË riassunte nei 2 Factor)
-  12- YearsSinceLastPromotion (perchË riassunte nei 2 Factor)
-  13- TotalWorkingYears (perchË riassunte nei 2 Factor)
+  1- EmployCount (perch√® sempre pari a 1)
+  2- EmployNumber (perch√® √® l'ID del dipendente)
+  3- Over18 (perc√® sempre pari a uno in quanto tutti ii dipendenti sono maggiorenni)
+  4- StandardHour (perch√® sempre pari a 80)
+  5- Education (perch√® dal chi-quadro test risultava indipendente alla variabile target)
+  6- Gender (perch√® dal chi-quadro test risultava indipendente alla variabile target)
+  7- PerformanceRating (perch√® dal chi-quadro test risultava indipendente alla variabile target)
+  8- RelationshipSatisfaction (perch√® dal chi-quadro test risultava indipendente alla variabile target)
+  9- YearsWithCurrManager (perch√® riassunte nei 2 Factor)
+  10- YearsAtCompany (perch√® riassunte nei 2 Factor)
+  11- YearsInCurrentRole (perch√® riassunte nei 2 Factor)
+  12- YearsSinceLastPromotion (perch√® riassunte nei 2 Factor)
+  13- TotalWorkingYears (perch√® riassunte nei 2 Factor)
 
 Sono state aggiunti i due fattori:
   1- F1
   2- F2
 
-Da uno stato iniziale di 35 variabili si Ë ottenuto un dataset contenente 24 variabili.
+Da uno stato iniziale di 35 variabili si √® ottenuto un dataset contenente 24 variabili.
 
-Aggiungiamo un'analisi dell'importana delle variabili perchË ci interessa indagare l'importanza in particolare di HourlyRate, DailyRate e MonthlyRate perchË sono di difficile interpretazione.
+Aggiungiamo un'analisi dell'importana delle variabili perch√® ci interessa indagare l'importanza in particolare di HourlyRate, DailyRate e MonthlyRate perch√® sono di difficile interpretazione.
 Scrivere due o tre cose di cosa possono significare.
 
 Rimangono comunque alcune variabili di dubbia interpretazione (HourlyRate, DailyRate e MonthlyRate) e, per valutare la loro importanza rispetto ad Attrition, viene rappresentato un ranking delle variabili basato sul modello Learning Vector Quantization (LVQ).
@@ -517,7 +517,7 @@ print(importance)
 # plot importance
 plot(importance)
 ```
-Come si si puÚ vedere dal grafico le variabili *HourlyRate, DailyRate e MonthlyRate* non risultano di particolare importanza quindi, dal momento il significato non Ë chiaro, si preferisce eliminarle dall'analisi.
+Come si si pu√≤ vedere dal grafico le variabili *HourlyRate, DailyRate e MonthlyRate* non risultano di particolare importanza quindi, dal momento il significato non √® chiaro, si preferisce eliminarle dall'analisi.
 
 ```{r, include=T}
 data <- data[,-which(names(data) %in% c("MonthlyRate","DailyRate","HourlyRate"))]
@@ -528,7 +528,7 @@ dim(data)
 
 Terminata il pre-processing, si passa alla fase di **Data Modeling**.
 
-Si Ë scelto di sviluppare i seguenti modelli:
+Si √® scelto di sviluppare i seguenti modelli:
 
   - *Decision Tree*;
   - *Random Forest*;
@@ -537,16 +537,16 @@ Si Ë scelto di sviluppare i seguenti modelli:
   - *Support Vector Machine*;
   - *Logistic Regression*.
 
-Per ottenere una validazione dei classificatori utilizzati Ë stato utilizzato un approccio basato sulla *cross validation*, il cosiddetto **K-Folds Cross Validation**. Questa tecnica statistica suddivide il dataset in k-partizioni di eguale numerosit‡ e assicura che tutti i record vengano utilizzati almeno una volta sia nel *training set* che nel *test set*. 
-Il numero di folds utilizzato Ë pari a k=10. Nei casi in cui non Ë risultato computazionalmente troppo pesante, Ë stata utilizzata una *repeated k-folds cross validation*. 
+Per ottenere una validazione dei classificatori utilizzati √® stato utilizzato un approccio basato sulla *cross validation*, il cosiddetto **K-Folds Cross Validation**. Questa tecnica statistica suddivide il dataset in k-partizioni di eguale numerosit√† e assicura che tutti i record vengano utilizzati almeno una volta sia nel *training set* che nel *test set*. 
+Il numero di folds utilizzato √® pari a k=10. Nei casi in cui non √® risultato computazionalmente troppo pesante, √® stata utilizzata una *repeated k-folds cross validation*. 
 
-I parametri caratteristici di ogni modello, non sono stati scelti a priori ma Ë stato utilizzato un sistema di tuning al fine di utilizzare il parametro migliore.
+I parametri caratteristici di ogni modello, non sono stati scelti a priori ma √® stato utilizzato un sistema di tuning al fine di utilizzare il parametro migliore.
 
-Infine, sia per tunare che per confrontare i modelli, Ë stata la ROC.
+Infine, sia per tunare che per confrontare i modelli, √® stata la ROC.
 
 I modelli vengono appresi sul train set, pari al 67% del dataset iniziale e su cui viene effettuato l'oversampling per risolvere il problema delle classi sbilanciate.
 
-Essendo in presenza di classi sbilanciate, la misura pi˘ appropriata per confrontare i modello non Ë l'*accurancy* ma bensÏ la *precision* e la *recall*, riassunte dalla **F1-Measure** (media armonica delle due precedenti metriche).
+Essendo in presenza di classi sbilanciate, la misura pi√π appropriata per confrontare i modello non √® l'*accurancy* ma bens√¨ la *precision* e la *recall*, riassunte dalla **F1-Measure** (media armonica delle due precedenti metriche).
 
 ```{r, include=T}
 
@@ -631,7 +631,7 @@ tuneGrid=tunegrid, trControl = Ctrl, metric=metric)
 plot(rpartTuneMyRf)
 ```
 
-Dal grafico si evince che il modello migliore Ë con 4 foreste e 500 alberi.
+Dal grafico si evince che il modello migliore √® con 4 foreste e 500 alberi.
 
 ```{r, include=T}
 
@@ -675,7 +675,7 @@ grid <- expand.grid(n.trees=150, interaction.depth=3, shrinkage=0.1, n.minobsinn
 STGfit.one.shot <- train(Attrition ~ ., data = train, method="gbm", tuneGrid=grid, trControl=Ctrl_save, metric=metric)
 ```
 
-Vengono selezionate le 4 variabili che risultano pi˘ importanti dall'analisi del decision tree:
+Vengono selezionate le 4 variabili che risultano pi√π importanti dall'analisi del decision tree:
   - Age
   - Monthly Income
   - F1
@@ -750,7 +750,7 @@ pander(getTrainPerf(nnetFit_defgridDR2))
 pander(nnetFit_defgridDR2$bestTune)
 ```
 
-Si nota che il pre-process migliore Ë la standardizzazione. 
+Si nota che il pre-process migliore √® la standardizzazione. 
 
 ```{r, include=T}
 
@@ -857,7 +857,7 @@ annotate("text", x=0.75, y=0.05, label=paste("svm =", round(calc_auc(g)$AUC[7], 
 
 Il modello migliore, basandosi sulla ROC Curve, risulta essere il Random Forest con un AUC pari a 0.9389.
 
-Per verificare ulteriormente la bont‡ di questo modello si confrontano i valori relativi a *precision, recall e F1-measure* calcolati testando i diversi classificatori sul test set.
+Per verificare ulteriormente la bont√† di questo modello si confrontano i valori relativi a *precision, recall e F1-measure* calcolati testando i diversi classificatori sul test set.
 
 ```{r, include=T}
 
@@ -889,7 +889,7 @@ Come era prevedibile, il Random Forest risulta avere le metriche migliori, in pa
 
 ### Conclusioni
 
-Per definire quali sono i fattori che pi˘ inducono un dipendente ad abbandonare l'azienda, si utilizza il modello Random Forest poichË Ë risultato essere il miglior classificatore. 
+Per definire quali sono i fattori che pi√π inducono un dipendente ad abbandonare l'azienda, si utilizza il modello Random Forest poich√® √® risultato essere il miglior classificatore. 
 
 Si stila un ranking delle variabili in base alla loro importanza nel prevedere la risposta *Attrition*.
 
@@ -901,7 +901,7 @@ print(importance_rf)
 plot(importance_rf)
 ```
 
-Si puÚ concludere che, nel prevedere se un dipendente abbandoner‡ la propria azienda, le variabili che maggiormente influiscono sulla risposta (con un'importanza maggiore del 60%) sono:
+Si pu√≤ concludere che, nel prevedere se un dipendente abbandoner√† la propria azienda, le variabili che maggiormente influiscono sulla risposta (con un'importanza maggiore del 60%) sono:
   - *MonthlyIncome*;
   - *Overtime*;
   - F1: *"Esperienza lavorativa del dipendente"*
@@ -952,7 +952,7 @@ lpSVM$prob <- svmProb
 
 
 
-questo ci potr‡ servire da fare insieme al loistico per evitare l'overfitting
+questo ci potr√† servire da fare insieme al loistico per evitare l'overfitting
 file:///C:/Users/GiuliaChiaretti(Stag/Downloads/2019_bagged_logistic_.html
 ```{r, include=T}
 bagged_logistic <- function(formula, data, nrep = 1000) {
